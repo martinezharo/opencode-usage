@@ -1,0 +1,15 @@
+{
+  "name": "opencode-usage",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Minimal dashboard for OpenCode Go plan usage: 5-hour, weekly and monthly windows broken down by model.",
+  "type": "module",
+  "engines": {
+    "node": ">=23.4"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node --watch server.mjs",
+    "test": "node --test"
+  }
+}

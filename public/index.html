@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>OpenCode Go usage</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f2f1eb'/%3E%3Crect x='6' y='14' width='20' height='4' rx='2' fill='%2321221d'/%3E%3Crect x='6' y='14' width='11' height='4' rx='2' fill='%23b5432e'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <main class="board">
+      <header class="board__head">
+        <h1 class="board__title">OpenCode Go</h1>
+        <p class="board__meta">
+          <span id="meta-host"></span>
+          <span id="meta-clock"></span>
+        </p>
+      </header>
+
+      <section id="meters" class="meters" aria-label="Plan usage windows"></section>
+
+      <footer class="board__foot">
+        <p id="foot-note">Loading usage…</p>
+      </footer>
+    </main>
+
+    <div id="detail" class="detail" role="tooltip" hidden></div>
+
+    <template id="meter-template">
+      <article class="meter">
+        <div class="meter__head">
+          <h2 class="meter__label"></h2>
+          <p class="meter__reset"></p>
+        </div>
+        <div class="meter__track" tabindex="0" role="img">
+          <div class="meter__ticks" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <div class="meter__fill"></div>
+        </div>
+        <div class="meter__readout">
+          <p class="meter__amount"></p>
+          <p class="meter__percent"></p>
+        </div>
+      </article>
+    </template>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

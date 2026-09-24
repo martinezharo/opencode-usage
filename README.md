@@ -5,8 +5,10 @@ A small dashboard for OpenCode Go plan usage. Three windows — rolling 5 hours 
 ## How it works
 
 - Plan percentages and reset times come from the OpenCode Go usage API (`GET https://opencode.ai/zen/go/v1/usage`) with the key stored by `opencode` in `~/.local/share/opencode/auth.json`.
-- The model split is computed from the local OpenCode database (`opencode.db`, provider `opencode-go`). Segment widths use local spend shares, scaled to the plan spend reported by the API, so the segments always fill the bar exactly.
-- If the API is unreachable, the dashboard falls back to local spend measured against the same $12 / $30 / $60 limits (rolling 5 hours, UTC week, UTC calendar month).
+- Per-model costs, request counts and tokens come from the OpenCode console API (`GET https://console.opencode.ai/api/usage/models?since=…`), queried once per window. These are the same numbers the console's "Usage by model" table shows, so the model split adds up to real console costs.
+- If the console is unreachable, the dashboard falls back to the local OpenCode database (`opencode.db`, provider `opencode-go`) for model costs, and to local windows (rolling 5 hours, UTC week, UTC calendar month) if the plan API is down too.
+
+Plan percentages use OpenCode's own accounting, which is not the same scale as console model costs; the bars track the plan, and the hover detail reports console activity.
 
 ## Run
 

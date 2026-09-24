@@ -39,6 +39,11 @@ function tokens(value) {
   return String(value);
 }
 
+function cost(value) {
+  if (value > 0 && value < 0.005) return "<$0.01";
+  return usd.format(value);
+}
+
 function countdown(iso) {
   const ms = Date.parse(iso) - Date.now();
   if (ms <= 0) return "now";
@@ -128,7 +133,7 @@ function apply() {
     ref.window = window_;
     ref.label.textContent = window_.label;
     ref.reset.textContent = resetText(window_.resetsAt);
-    ref.amount.innerHTML = `${esc(usd.format(window_.spent))}<span class="meter__limit">of ${esc(usd.format(window_.limit))}</span>`;
+    ref.amount.innerHTML = `${esc(usd.format(window_.planSpent))}<span class="meter__limit">of ${esc(usd.format(window_.limit))}</span>`;
     ref.percent.textContent = `${Math.round(window_.percent)}%`;
     ref.percent.classList.toggle("is-over", window_.percent > 100);
     ref.fill.style.width = `${Math.min(100, Math.max(0, window_.percent))}%`;
@@ -136,7 +141,7 @@ function apply() {
 
     ref.track.setAttribute(
       "aria-label",
-      `${window_.label}: ${usd.format(window_.spent)} of ${usd.format(window_.limit)}, ${Math.round(window_.percent)} percent used. ${resetText(window_.resetsAt)}`,
+      `${window_.label}: ${Math.round(window_.percent)} percent of the ${usd.format(window_.limit)} plan used. ${cost(window_.activitySpent)} of model activity. ${resetText(window_.resetsAt)}`,
     );
   }
 
@@ -148,10 +153,7 @@ function renderNote() {
   refs.note.replaceChildren();
   const parts = [];
   if (snapshot.plan === "api") {
-    parts.push("Live plan limits from the OpenCode Go API");
-    if (Object.values(snapshot.windows).some((window_) => window_.localSpent > 0)) {
-      parts.push("model split estimated from local sessions");
-    }
+    parts.push("Plan usage from the OpenCode Go API");
   } else {
     const limits = `$${snapshot.limits.rolling} / $${snapshot.limits.weekly} / $${snapshot.limits.monthly}`;
     parts.push(
@@ -161,6 +163,11 @@ function renderNote() {
     );
     parts.push(`local estimates against ${limits}`);
   }
+  parts.push(
+    snapshot.modelSource === "console"
+      ? "model costs from the OpenCode console"
+      : `console unavailable; model costs from local sessions`,
+  );
   for (const text of parts) {
     const span = document.createElement("span");
     span.textContent = text;
@@ -176,7 +183,7 @@ function detailHTML(window_) {
     .map((seg) => {
       const stats = seg.tokens
         ? [
-            `${num.format(seg.runs)} runs`,
+            `${num.format(seg.runs)} requests`,
             `${tokens(seg.tokens.input)} input`,
             `${tokens(seg.tokens.output)} output`,
             `${tokens(seg.tokens.cacheRead)} cache read`,
@@ -186,7 +193,7 @@ function detailHTML(window_) {
         <li class="detail__row" data-model="${esc(seg.name)}">
           <span class="swatch" style="--c-light:${esc(seg.color.light)};--c-dark:${esc(seg.color.dark)}"></span>
           <span class="detail__name">${esc(seg.name)}</span>
-          <span class="detail__spend">${esc(usd.format(seg.spend))}</span>
+          <span class="detail__spend">${esc(cost(seg.spend))}</span>
           <span class="detail__share">${Math.round(seg.share * 100)}%</span>
           <span class="detail__stats">${stats
             .map((stat) => `<span>${esc(stat)}</span>`)
@@ -195,20 +202,15 @@ function detailHTML(window_) {
     })
     .join("");
 
-  const note =
-    snapshot.plan === "api" && window_.localSpent > 0
-      ? "split estimated from local sessions"
-      : "";
-
   return `
     <div class="detail__head">
       <span class="detail__window">${esc(window_.label)}</span>
-      <span class="detail__total">${esc(usd.format(window_.spent))} of ${esc(usd.format(window_.limit))}</span>
+      <span class="detail__total">${Math.round(window_.percent)}% of ${esc(usd.format(window_.limit))} plan</span>
     </div>
     <ul class="detail__rows">${rows}</ul>
     <div class="detail__foot">
       <span>${esc(resetText(window_.resetsAt))}</span>
-      <span>${esc(note)}</span>
+      <span>activity ${esc(cost(window_.activitySpent))}</span>
     </div>`;
 }
 

@@ -1,0 +1,19 @@
+# opencode-usage-dash
+
+> Local-first dashboard for OpenCode usage: the rolling five-hour, weekly and monthly plan windows, with every dollar split by model. It runs on your own machine and reads your own OpenCode data.
+
+Key facts:
+
+- Install: `npx opencode-usage-dash` (Node 23.4+), or run the container `ghcr.io/martinezharo/opencode-usage`
+- Source code: https://github.com/martinezharo/opencode-usage (MIT)
+- npm package: https://www.npmjs.com/package/opencode-usage-dash
+- Plan percentages and reset times come from the OpenCode Go usage API; per-model costs, requests and tokens come from the OpenCode console API; a local `opencode.db` fallback keeps it useful offline
+- No account, no telemetry. The API key never leaves the machine; the server binds to `127.0.0.1` by default
+- Plan caps are configurable (`--limits 20,50,100`) or removable (`--limits none`) for users without the Go plan
+
+## Docs
+
+- [README](https://github.com/martinezharo/opencode-usage#readme): install options, configuration, how it works
+- [Landing page](https://opencode-usage.4oli.com/): overview
+- [Long-form markdown](https://opencode-usage.4oli.com/llms-full.txt): the full page content in plain markdown
+- [Releases](https://github.com/martinezharo/opencode-usage/releases): changelog and versions

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "name": "opencode-usage",
+  "compatibility_date": "2026-09-24",
+  "workers_dev": false,
+  "assets": {
+    "directory": "./docs",
+    "not_found_handling": "404-page"
+  },
+  "routes": [
+    {
+      "pattern": "opencode-usage.4oli.com",
+      "custom_domain": true
+    }
+  ]
+}

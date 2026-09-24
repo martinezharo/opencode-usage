@@ -9,16 +9,28 @@
       name="description"
       content="A local-first dashboard for your OpenCode usage: plan windows and spend split by model. Run it with npx opencode-usage-dash."
     />
+    <link rel="canonical" href="https://opencode-usage.4oli.com/" />
+    <link rel="alternate" type="text/markdown" href="/index.md" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="opencode-usage-dash" />
+    <meta property="og:site_name" content="opencode-usage-dash" />
+    <meta property="og:url" content="https://opencode-usage.4oli.com/" />
+    <meta property="og:title" content="opencode-usage-dash — your OpenCode usage, at a glance" />
     <meta
       property="og:description"
-      content="Your OpenCode usage, at a glance. Plan windows and per-model spend, local-first."
+      content="Plan windows and per-model spend for OpenCode, local-first. Run it with npx opencode-usage-dash."
     />
     <meta
       property="og:image"
-      content="https://raw.githubusercontent.com/martinezharo/opencode-usage/main/docs/dashboard.png"
+      content="https://opencode-usage.4oli.com/dashboard.png"
     />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="opencode-usage-dash" />
+    <meta
+      name="twitter:description"
+      content="Plan windows and per-model spend for OpenCode, local-first."
+    />
+    <meta name="twitter:image" content="https://opencode-usage.4oli.com/dashboard.png" />
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f2f1eb'/%3E%3Crect x='6' y='14' width='20' height='4' rx='2' fill='%2321221d'/%3E%3Crect x='6' y='14' width='11' height='4' rx='2' fill='%23b5432e'/%3E%3C/svg%3E"
@@ -90,6 +102,28 @@
       </span>
     </footer>
 
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "opencode-usage-dash",
+        "url": "https://opencode-usage.4oli.com/",
+        "description": "Local-first dashboard for OpenCode usage: plan windows and per-model spend, with request and token detail.",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Linux, macOS, Windows",
+        "softwareVersion": "1.0.0",
+        "license": "https://github.com/martinezharo/opencode-usage/blob/main/LICENSE",
+        "codeRepository": "https://github.com/martinezharo/opencode-usage",
+        "installUrl": "https://www.npmjs.com/package/opencode-usage-dash",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "author": {
+          "@type": "Person",
+          "name": "Oliver Martínez",
+          "url": "https://github.com/martinezharo"
+        }
+      }
+    </script>
     <script>
       const button = document.querySelector(".install__copy");
       button?.addEventListener("click", async () => {

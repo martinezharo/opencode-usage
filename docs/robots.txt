@@ -1,0 +1,39 @@
+# Robots for opencode-usage.4oli.com — humans and agents both welcome.
+
+User-agent: *
+Allow: /
+
+# AI and agent crawlers, explicitly allowed.
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://opencode-usage.4oli.com/sitemap.xml
+# Agent index: https://opencode-usage.4oli.com/llms.txt
+# Long-form markdown: https://opencode-usage.4oli.com/llms-full.txt

@@ -1,0 +1,64 @@
+# opencode-usage-dash
+
+Local-first dashboard for OpenCode usage: the rolling five-hour, weekly and monthly plan windows, with every dollar split by model. It runs on your own machine and reads your own OpenCode data, so nothing leaves it.
+
+- Website: https://opencode-usage.4oli.com/
+- Source: https://github.com/martinezharo/opencode-usage (MIT)
+- npm: https://www.npmjs.com/package/opencode-usage-dash
+- Container: ghcr.io/martinezharo/opencode-usage
+- Current version: 1.0.0
+- Requirements: Node 23.4 or newer (uses the built-in `node:sqlite`)
+
+## What it does
+
+- Shows the three OpenCode Go plan windows — rolling 5-hour, weekly and monthly — with real percentages and reset countdowns from the OpenCode Go usage API.
+- Splits each window by model. Per-model costs, request counts and tokens come from the OpenCode console's usage API, so the dollars match the "Usage by model" table at opencode.ai/console.
+- Hovering (or focusing, or tapping) a bar opens a panel with each model's cost, share, requests, input, output and cache-read tokens.
+- Falls back to the local OpenCode database when the console or the plan API is unreachable, and to local time windows (rolling 5 hours, UTC week, UTC calendar month) when the plan API is down.
+- Works without the Go plan: `--limits 20,50,100` sets your own caps, `--limits none` shows spend by model per window without percentages.
+- Dark mode follows the system.
+
+## Install
+
+npx:
+
+    npx opencode-usage-dash
+
+Docker:
+
+    docker run --rm \
+      -p 127.0.0.1:4173:4173 \
+      -v "$HOME/.local/share/opencode:/data:ro" \
+      -e OPENCODE_DB=/data/opencode.db \
+      -e OPENCODE_AUTH=/data/auth.json \
+      ghcr.io/martinezharo/opencode-usage:latest
+
+From source:
+
+    git clone https://github.com/martinezharo/opencode-usage
+    cd opencode-usage
+    node bin/cli.mjs
+
+The dashboard is served at http://127.0.0.1:4173 and reads `~/.local/share/opencode/opencode.db` and `~/.local/share/opencode/auth.json` by default.
+
+## Configuration
+
+| Flag | Environment | Default | Description |
+| --- | --- | --- | --- |
+| `--port` | `PORT` | `4173` | Port to listen on. |
+| `--host` | `HOST` | `127.0.0.1` | Interface to bind. |
+| `--open` / `--no-open` | `OPENCODE_USAGE_NO_OPEN=1` | auto (TTY) | Open the browser once ready. |
+| `--db` | `OPENCODE_DB` | `~/.local/share/opencode/opencode.db` | OpenCode database. |
+| `--auth` | `OPENCODE_AUTH` | `~/.local/share/opencode/auth.json` | Where the API key lives. |
+| `--limits` | `OPENCODE_USAGE_LIMITS` | `12,30,60` | Plan caps as `5h,weekly,monthly` dollars, or `none`. |
+
+## Privacy
+
+Everything runs locally. The only network requests are to the two OpenCode APIs, using your own key: `opencode.ai/zen/go/v1/usage` for plan percentages and `console.opencode.ai/api/usage/models` for per-model costs. There is no account, no telemetry, and the server binds to loopback by default.
+
+## Notes
+
+- Plan percentages use OpenCode's own accounting, which is a different scale from the console's model costs; the bars track the plan and the hover detail reports console activity, labelled in the page footer.
+- The project is not affiliated with OpenCode or T3 Code.
+
+MIT licensed.

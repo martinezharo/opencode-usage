@@ -9,6 +9,7 @@ import {
   PALETTE,
   apiRanges,
   assignColors,
+  configure,
   minusOneMonth,
   segmentsFrom,
   snapshot,
@@ -288,6 +289,42 @@ test("snapshot marks usage with no model detail as other clients", async () => {
     rolling.segments.map((segment) => segment.name),
     ["other clients"],
   );
+});
+
+test("snapshot hides plan caps when limits are disabled", async () => {
+  const now = Date.parse("2026-09-24T17:00:00Z");
+  const dbPath = makeDb([message("deepseek-v4.1-flash", 6, now - 1 * HOUR)]);
+  configure({ limits: { disabled: true } });
+  try {
+    const result = await snapshot({
+      now,
+      fetchImpl: stubFetch({ consoleItems: () => [] }),
+      dbPath,
+    });
+    assert.equal(result.limits, null);
+    assert.equal(result.windows.weekly.limit, null);
+    assert.equal(result.windows.weekly.percent, null);
+    assert.equal(result.windows.weekly.planSpent, null);
+    assert.equal(result.windows.weekly.activitySpent, 6);
+  } finally {
+    configure({ limits: { rolling: 12, weekly: 30, monthly: 60 } });
+  }
+});
+
+test("snapshot reports a missing database instead of failing", async () => {
+  const now = Date.parse("2026-09-24T17:00:00Z");
+
+  const result = await snapshot({
+    now,
+    fetchImpl: stubFetch({ consoleItems: () => [] }),
+    dbPath: "/nonexistent/opencode.db",
+  });
+
+  assert.equal(result.dbAvailable, false);
+  assert.equal(result.dbPath, "/nonexistent/opencode.db");
+  assert.equal(result.modelSource, "local");
+  assert.equal(result.windows.weekly.activitySpent, 0);
+  assert.equal(result.windows.weekly.percent, 29);
 });
 
 function round(value) {

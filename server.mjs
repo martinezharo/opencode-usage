@@ -1,8 +1,11 @@
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { snapshot } from "./lib/usage.mjs";
+
+import { parseLimits } from "./lib/cli.mjs";
+import { configure, dataPaths, getLimits, snapshot } from "./lib/usage.mjs";
 
 const PUBLIC_DIR = fileURLToPath(new URL("./public/", import.meta.url));
 const PORT = Number(process.env.PORT ?? 4173);
@@ -19,6 +22,12 @@ const MIME = {
   ".ico": "image/x-icon",
   ".woff2": "font/woff2",
 };
+
+configure({
+  dbPath: process.env.OPENCODE_DB,
+  authPath: process.env.OPENCODE_AUTH,
+  limits: parseLimits(process.env.OPENCODE_USAGE_LIMITS) ?? undefined,
+});
 
 let cache = { at: 0, data: null };
 let inflight = null;
@@ -47,7 +56,7 @@ function send(res, status, type, body) {
   res.end(body);
 }
 
-const server = createServer(async (req, res) => {
+export const server = createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", `http://${req.headers.host ?? "localhost"}`);
 
   if (url.pathname === "/api/usage") {
@@ -88,6 +97,24 @@ const server = createServer(async (req, res) => {
   }
 });
 
+server.on("error", (error) => {
+  if (error.code === "EADDRINUSE") {
+    console.error(`Port ${PORT} is already in use. Start with --port <port> to pick another one.`);
+  } else {
+    console.error(String(error?.message ?? error));
+  }
+  process.exit(1);
+});
+
 server.listen(PORT, HOST, () => {
-  console.log(`opencode-usage listening on http://${HOST}:${PORT}`);
+  const { dbPath } = dataPaths();
+  const state = existsSync(dbPath) ? "found" : "not found";
+  const limits = getLimits();
+  console.log(`opencode-usage-dash listening on http://${HOST}:${PORT}`);
+  console.log(`opencode database: ${dbPath} (${state})`);
+  console.log(
+    limits
+      ? `plan limits: $${limits.rolling} / $${limits.weekly} / $${limits.monthly}`
+      : "plan limits: disabled (tracking spend only)",
+  );
 });

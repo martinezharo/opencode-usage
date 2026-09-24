@@ -133,12 +133,24 @@ function apply() {
     ref.window = window_;
     ref.label.textContent = window_.label;
     ref.reset.textContent = resetText(window_.resetsAt);
+    renderSegments(ref, window_);
+
+    if (window_.percent == null) {
+      ref.amount.innerHTML = `${esc(cost(window_.activitySpent))}<span class="meter__limit">in this window</span>`;
+      ref.percent.textContent = "";
+      ref.percent.classList.remove("is-over");
+      ref.fill.style.width = "100%";
+      ref.track.setAttribute(
+        "aria-label",
+        `${window_.label}: ${cost(window_.activitySpent)} of model activity. ${resetText(window_.resetsAt)}`,
+      );
+      continue;
+    }
+
     ref.amount.innerHTML = `${esc(usd.format(window_.planSpent))}<span class="meter__limit">of ${esc(usd.format(window_.limit))}</span>`;
     ref.percent.textContent = `${Math.round(window_.percent)}%`;
     ref.percent.classList.toggle("is-over", window_.percent > 100);
     ref.fill.style.width = `${Math.min(100, Math.max(0, window_.percent))}%`;
-    renderSegments(ref, window_);
-
     ref.track.setAttribute(
       "aria-label",
       `${window_.label}: ${Math.round(window_.percent)} percent of the ${usd.format(window_.limit)} plan used. ${cost(window_.activitySpent)} of model activity. ${resetText(window_.resetsAt)}`,
@@ -152,7 +164,12 @@ function apply() {
 function renderNote() {
   refs.note.replaceChildren();
   const parts = [];
-  if (snapshot.plan === "api") {
+  if (snapshot.dbAvailable === false) {
+    parts.push(`No opencode database at ${snapshot.dbPath}`);
+  }
+  if (snapshot.limits == null) {
+    parts.push("plan caps disabled; tracking spend by window");
+  } else if (snapshot.plan === "api") {
     parts.push("Plan usage from the OpenCode Go API");
   } else {
     const limits = `$${snapshot.limits.rolling} / $${snapshot.limits.weekly} / $${snapshot.limits.monthly}`;
@@ -163,11 +180,13 @@ function renderNote() {
     );
     parts.push(`local estimates against ${limits}`);
   }
-  parts.push(
-    snapshot.modelSource === "console"
-      ? "model costs from the OpenCode console"
-      : `console unavailable; model costs from local sessions`,
-  );
+  if (snapshot.modelSource === "console") {
+    parts.push("model costs from the OpenCode console");
+  } else if (snapshot.planError === "no-key") {
+    parts.push("model costs from local sessions");
+  } else {
+    parts.push(`console unavailable; model costs from local sessions`);
+  }
   for (const text of parts) {
     const span = document.createElement("span");
     span.textContent = text;
@@ -202,10 +221,15 @@ function detailHTML(window_) {
     })
     .join("");
 
+  const headline =
+    window_.percent == null
+      ? `activity ${cost(window_.activitySpent)}`
+      : `${Math.round(window_.percent)}% of ${usd.format(window_.limit)} plan`;
+
   return `
     <div class="detail__head">
       <span class="detail__window">${esc(window_.label)}</span>
-      <span class="detail__total">${Math.round(window_.percent)}% of ${esc(usd.format(window_.limit))} plan</span>
+      <span class="detail__total">${esc(headline)}</span>
     </div>
     <ul class="detail__rows">${rows}</ul>
     <div class="detail__foot">

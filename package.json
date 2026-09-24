@@ -1,9 +1,21 @@
 {
-  "name": "opencode-usage",
-  "private": true,
-  "version": "0.1.0",
-  "description": "Minimal dashboard for OpenCode Go plan usage: 5-hour, weekly and monthly windows broken down by model.",
+  "name": "opencode-usage-dash",
+  "version": "1.0.0",
+  "description": "Minimal dashboard for OpenCode usage: plan windows and spend split by model.",
   "type": "module",
+  "license": "MIT",
+  "author": "Oliver Martínez",
+  "bin": {
+    "opencode-usage-dash": "bin/cli.mjs"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "public",
+    "server.mjs",
+    "README.md",
+    "LICENSE"
+  ],
   "engines": {
     "node": ">=23.4"
   },
@@ -11,5 +23,26 @@
     "start": "node server.mjs",
     "dev": "node --watch server.mjs",
     "test": "node --test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/martinezharo/opencode-usage.git"
+  },
+  "homepage": "https://github.com/martinezharo/opencode-usage#readme",
+  "bugs": {
+    "url": "https://github.com/martinezharo/opencode-usage/issues"
+  },
+  "keywords": [
+    "opencode",
+    "opencode-go",
+    "usage",
+    "dashboard",
+    "spend",
+    "tokens",
+    "cost",
+    "cli"
+  ],
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -1,0 +1,13 @@
+services:
+  opencode-usage:
+    build: .
+    # image: ghcr.io/martinezharo/opencode-usage:latest
+    container_name: opencode-usage
+    ports:
+      - "127.0.0.1:4173:4173"
+    environment:
+      OPENCODE_DB: /data/opencode.db
+      OPENCODE_AUTH: /data/auth.json
+    volumes:
+      - "${OPENCODE_DATA:-$HOME/.local/share/opencode}:/data:ro"
+    restart: unless-stopped

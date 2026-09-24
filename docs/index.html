@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>opencode-usage-dash — your OpenCode usage, at a glance</title>
+    <meta
+      name="description"
+      content="A local-first dashboard for your OpenCode usage: plan windows and spend split by model. Run it with npx opencode-usage-dash."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="opencode-usage-dash" />
+    <meta
+      property="og:description"
+      content="Your OpenCode usage, at a glance. Plan windows and per-model spend, local-first."
+    />
+    <meta
+      property="og:image"
+      content="https://raw.githubusercontent.com/martinezharo/opencode-usage/main/docs/dashboard.png"
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f2f1eb'/%3E%3Crect x='6' y='14' width='20' height='4' rx='2' fill='%2321221d'/%3E%3Crect x='6' y='14' width='11' height='4' rx='2' fill='%23b5432e'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="top">
+      <span class="top__name">opencode-usage-dash</span>
+      <nav class="top__links">
+        <a href="https://github.com/martinezharo/opencode-usage">GitHub</a>
+        <a href="https://www.npmjs.com/package/opencode-usage-dash">npm</a>
+      </nav>
+    </header>
+
+    <main class="page">
+      <h1 class="title">Your OpenCode usage, at a glance.</h1>
+      <p class="lede">
+        The rolling five-hour, weekly and monthly plan windows, and every dollar split by model.
+        It reads your own OpenCode data, so nothing leaves your machine.
+      </p>
+
+      <div class="install">
+        <code class="install__code">npx opencode-usage-dash</code>
+        <button class="install__copy" type="button" data-copy="npx opencode-usage-dash">copy</button>
+      </div>
+      <p class="install__alt">
+        or the container:
+        <a href="https://github.com/martinezharo/opencode-usage#docker"
+          ><code>ghcr.io/martinezharo/opencode-usage</code></a
+        >
+      </p>
+
+      <figure class="shot">
+        <picture>
+          <source media="(max-width: 32rem)" srcset="mobile.png" />
+          <img
+            src="dashboard.png"
+            alt="The dashboard: three segmented bars for the 5-hour, weekly and monthly plan windows"
+            width="1000"
+            height="800"
+          />
+        </picture>
+      </figure>
+
+      <ul class="notes">
+        <li>Real percentages and reset times from the OpenCode Go API.</li>
+        <li>Per-model costs from the OpenCode console, so the dollars match the website.</li>
+        <li>Hover a bar for spend, requests and tokens per model.</li>
+        <li>Falls back to your local database. No account, no telemetry.</li>
+      </ul>
+
+      <figure class="shot shot--detail">
+        <img
+          src="hover.png"
+          alt="Hovering the weekly bar shows each model's cost, share, requests and tokens"
+          width="1000"
+          height="803"
+        />
+        <figcaption>Hover or tap a bar for the detail behind it.</figcaption>
+      </figure>
+    </main>
+
+    <footer class="foot">
+      <span>MIT licensed</span>
+      <span>
+        <a href="https://github.com/martinezharo/opencode-usage">Source</a>
+        <a href="https://github.com/martinezharo/opencode-usage/releases">Releases</a>
+      </span>
+    </footer>
+
+    <script>
+      const button = document.querySelector(".install__copy");
+      button?.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(button.dataset.copy);
+          button.textContent = "copied";
+          setTimeout(() => (button.textContent = "copy"), 1500);
+        } catch {
+          button.textContent = "copy failed";
+        }
+      });
+    </script>
+  </body>
+</html>

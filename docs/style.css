@@ -1,0 +1,251 @@
+@font-face {
+  font-family: "Archivo";
+  font-style: normal;
+  font-weight: 300 800;
+  font-stretch: 75% 125%;
+  font-display: swap;
+  src: url("fonts/archivo.woff2") format("woff2");
+}
+
+:root {
+  color-scheme: light dark;
+  --canvas: #f2f1eb;
+  --ink: #21221d;
+  --ink-soft: #6f6e63;
+  --hair: #d6d4c9;
+  --track: #e3e1d8;
+  --accent: #b5432e;
+  --panel: #fbfaf7;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --canvas: #1f201c;
+    --ink: #edebdf;
+    --ink-soft: #97968a;
+    --hair: #383931;
+    --track: #2b2c26;
+    --accent: #d0694f;
+    --panel: #262722;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+}
+
+body {
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: "Archivo", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: 0.004em;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--hair);
+}
+
+a:hover {
+  border-bottom-color: var(--ink);
+}
+
+code {
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem 1.5rem;
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 1.4rem 1.5rem;
+  border-bottom: 1px solid var(--hair);
+}
+
+.top__name {
+  font-size: 0.9375rem;
+  font-weight: 650;
+  font-stretch: 112%;
+  letter-spacing: 0.01em;
+}
+
+.top__links {
+  display: flex;
+  gap: 1.25rem;
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+}
+
+.page {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: clamp(2.5rem, 8vh, 5rem) 1.5rem 1rem;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.9rem, 1.2rem + 3.4vw, 3.25rem);
+  font-weight: 660;
+  font-stretch: 116%;
+  letter-spacing: -0.018em;
+  line-height: 1.04;
+  max-width: 18ch;
+}
+
+.lede {
+  margin: 1.4rem 0 0;
+  max-width: 52ch;
+  font-size: 1.0625rem;
+  color: var(--ink-soft);
+}
+
+.install {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2.25rem;
+  padding: 0.65rem 0.7rem 0.65rem 1rem;
+  background: var(--panel);
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  max-width: 30rem;
+}
+
+.install__code {
+  font-size: 0.9375rem;
+  font-weight: 560;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+.install__copy {
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  background: none;
+  border: 1px solid var(--hair);
+  border-radius: 5px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+}
+
+.install__copy:hover {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+.install__copy:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.install__alt {
+  margin: 0.7rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+}
+
+.shot {
+  margin: clamp(2.5rem, 7vh, 4rem) 0 0;
+}
+
+.shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+}
+
+.shot--detail {
+  margin-top: clamp(1.75rem, 5vh, 2.5rem);
+}
+
+.shot figcaption {
+  margin-top: 0.7rem;
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+}
+
+.notes {
+  margin: clamp(2.25rem, 6vh, 3rem) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0;
+  max-width: 40rem;
+}
+
+.notes li {
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--hair);
+  font-size: 0.9375rem;
+}
+
+.notes li:first-child {
+  border-top: 1px solid var(--hair);
+}
+
+.notes li::before {
+  content: "";
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+  margin-right: 0.7rem;
+  border-radius: 2px;
+  background: var(--accent);
+  vertical-align: 0.05em;
+}
+
+.notes li:nth-child(2)::before {
+  background: #2f6f8f;
+}
+
+.notes li:nth-child(3)::before {
+  background: #b5851d;
+}
+
+.notes li:nth-child(4)::before {
+  background: #4c7a4e;
+}
+
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  max-width: 46rem;
+  margin: clamp(2.5rem, 7vh, 4rem) auto 0;
+  padding: 1.4rem 1.5rem 2.5rem;
+  border-top: 1px solid var(--hair);
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+}
+
+.foot span {
+  display: flex;
+  gap: 1.25rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}

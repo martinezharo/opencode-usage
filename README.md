@@ -1,5 +1,8 @@
 # opencode-usage-dash
 
+[![npm](https://img.shields.io/npm/v/opencode-usage-dash)](https://www.npmjs.com/package/opencode-usage-dash)
+[![license](https://img.shields.io/npm/l/opencode-usage-dash)](LICENSE)
+
 Minimal dashboard for your OpenCode usage: the rolling 5-hour, weekly and monthly plan windows, and where the spend goes — one segmented bar per window, split by model, with the detail on hover.
 
 ![dashboard](https://raw.githubusercontent.com/martinezharo/opencode-usage/main/docs/dashboard.png)

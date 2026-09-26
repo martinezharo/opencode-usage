@@ -2,7 +2,8 @@
 
 [opencode-usage-dash](https://opencode-usage.4oli.com/) is a local-first dashboard for
 [OpenCode](https://opencode.ai) usage. It shows the rolling five-hour, weekly and monthly
-plan windows, and splits every dollar by model.
+plan windows, splits every dollar by model, and lists your latest sessions with what each
+one cost.
 
 - **Install:** `npx opencode-usage-dash` (Node 23.4+)
 - **Container:** `ghcr.io/martinezharo/opencode-usage`
@@ -15,6 +16,7 @@ plan windows, and splits every dollar by model.
 - Real percentages and reset times from the OpenCode Go usage API.
 - Per-model costs from the OpenCode console, so the dollars match the website.
 - Hover a bar for spend, requests and tokens per model.
+- Latest sessions with their cost and the models they used.
 - Falls back to your local database. No account, no telemetry.
 
 ## Install

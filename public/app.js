@@ -1,3 +1,5 @@
+import { agoText, dirLabel, sessionsSignature } from "/format.js";
+
 const usd = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
@@ -11,6 +13,9 @@ const REFRESH_MS = 60_000;
 
 const refs = {
   meters: document.querySelector("#meters"),
+  sessions: document.querySelector("#sessions"),
+  sessionList: document.querySelector("#sessions-list"),
+  sessionNote: document.querySelector("#sessions-note"),
   detail: document.querySelector("#detail"),
   host: document.querySelector("#meta-host"),
   clock: document.querySelector("#meta-clock"),
@@ -23,6 +28,7 @@ let snapshot = null;
 let active = null;
 let hideTimer = 0;
 let lastLoad = 0;
+let lastSessionsSignature = null;
 
 const esc = (value) =>
   String(value).replace(
@@ -158,6 +164,7 @@ function apply() {
   }
 
   renderNote();
+  renderSessions();
   if (active) refreshDetail();
 }
 
@@ -195,6 +202,53 @@ function renderNote() {
   const hint = document.createElement("span");
   hint.textContent = "hover or tap a bar for the model split";
   refs.note.append(hint);
+}
+
+function renderSessions() {
+  const sessions = snapshot.sessions ?? [];
+  const unavailable = snapshot.dbAvailable === false;
+  refs.sessions.hidden = unavailable;
+  if (unavailable) return;
+
+  const signature = sessionsSignature(sessions);
+  if (signature === lastSessionsSignature) return;
+  lastSessionsSignature = signature;
+
+  if (!sessions.length) {
+    refs.sessionList.replaceChildren();
+    refs.sessionNote.textContent = "no OpenCode Go sessions in the local database yet";
+    refs.sessionNote.hidden = false;
+    return;
+  }
+  refs.sessionNote.hidden = true;
+
+  refs.sessionList.innerHTML = sessions
+    .map((session) => {
+      const meta = [dirLabel(session.directory), agoText(session.updatedAt), session.agent]
+        .filter(Boolean)
+        .map((part) => `<span>${esc(part)}</span>`)
+        .join("");
+      const models = session.models
+        .map(
+          (model) => `
+          <li class="session__model">
+            <span class="swatch" style="--c-light:${esc(model.color.light)};--c-dark:${esc(model.color.dark)}"></span>
+            <span class="session__model-name">${esc(model.name)}</span>
+            <span class="session__model-cost">${esc(cost(model.cost))}</span>
+          </li>`,
+        )
+        .join("");
+      return `
+        <li class="session">
+          <div class="session__head">
+            <p class="session__title" title="${esc(session.title)}">${esc(session.title)}</p>
+            <p class="session__cost">${esc(cost(session.cost))}</p>
+          </div>
+          <p class="session__meta">${meta}</p>
+          <ul class="session__models">${models}</ul>
+        </li>`;
+    })
+    .join("");
 }
 
 function detailHTML(window_) {

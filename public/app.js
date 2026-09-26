@@ -26,7 +26,7 @@ let snapshot = null;
 let active = null;
 let hideTimer = 0;
 let lastLoad = 0;
-let sessionsSignature = "";
+let sessionsSignature = null;
 
 const esc = (value) =>
   String(value).replace(
@@ -86,7 +86,7 @@ function agoText(iso) {
 
 function dirLabel(directory) {
   if (!directory) return "";
-  const parts = String(directory).split("/").filter(Boolean);
+  const parts = String(directory).split(/[\\/]/).filter(Boolean);
   return parts.length > 2 ? parts.slice(-2).join("/") : parts.join("/");
 }
 

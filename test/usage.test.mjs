@@ -228,6 +228,7 @@ test("querySessions lists recent root sessions with their per-model spend", () =
     [
       { id: "ses_a", title: "Fix the bug", directory: "/srv/projects/app", time: now - 1 * HOUR },
       { id: "ses_b", title: "Another one", time: now - 30 * 60_000 },
+      { id: "ses_empty", title: "No messages", time: now - 45 * 60_000 },
       { id: "ses_child", title: "Subagent", parent: "ses_a", time: now },
       { id: "ses_archived", title: "Old", time: now, archived: now },
       { id: "ses_other", title: "Other provider", time: now, provider: "anthropic" },
@@ -241,14 +242,16 @@ test("querySessions lists recent root sessions with their per-model spend", () =
 
   assert.deepEqual(
     sessions.map((session) => session.id),
-    ["ses_b", "ses_a"],
+    ["ses_b", "ses_empty", "ses_a"],
   );
   assert.deepEqual(firstOnly.map((session) => session.id), ["ses_b"]);
   assert.equal(sessions[0].updatedAt, new Date(now - 30 * 60_000).toISOString());
   assert.equal(sessions[0].directory, "/tmp/project");
-  assert.equal(sessions[1].cost, 3);
+  assert.equal(sessions[1].cost, 0);
+  assert.deepEqual(sessions[1].models, []);
+  assert.equal(sessions[2].cost, 3);
   assert.deepEqual(
-    sessions[1].models.map((model) => [model.name, model.cost, model.runs]),
+    sessions[2].models.map((model) => [model.name, model.cost, model.runs]),
     [
       ["glm-5.3-flash", 2, 1],
       ["deepseek-v4.1-flash", 1, 1],

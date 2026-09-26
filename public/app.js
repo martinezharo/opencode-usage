@@ -11,6 +11,9 @@ const REFRESH_MS = 60_000;
 
 const refs = {
   meters: document.querySelector("#meters"),
+  sessions: document.querySelector("#sessions"),
+  sessionList: document.querySelector("#sessions-list"),
+  sessionNote: document.querySelector("#sessions-note"),
   detail: document.querySelector("#detail"),
   host: document.querySelector("#meta-host"),
   clock: document.querySelector("#meta-clock"),
@@ -23,6 +26,7 @@ let snapshot = null;
 let active = null;
 let hideTimer = 0;
 let lastLoad = 0;
+let sessionsSignature = "";
 
 const esc = (value) =>
   String(value).replace(
@@ -66,6 +70,24 @@ function resetText(iso) {
 
 function clockText() {
   return `${new Date().toISOString().slice(11, 16)} UTC`;
+}
+
+function agoText(iso) {
+  const ms = Date.now() - Date.parse(iso);
+  if (!Number.isFinite(ms) || ms < 60_000) return "just now";
+  const minutes = Math.floor(ms / 60_000);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  return `${Math.floor(days / 30)}mo ago`;
+}
+
+function dirLabel(directory) {
+  if (!directory) return "";
+  const parts = String(directory).split("/").filter(Boolean);
+  return parts.length > 2 ? parts.slice(-2).join("/") : parts.join("/");
 }
 
 function buildMeters() {
@@ -158,6 +180,7 @@ function apply() {
   }
 
   renderNote();
+  renderSessions();
   if (active) refreshDetail();
 }
 
@@ -195,6 +218,55 @@ function renderNote() {
   const hint = document.createElement("span");
   hint.textContent = "hover or tap a bar for the model split";
   refs.note.append(hint);
+}
+
+function renderSessions() {
+  const sessions = snapshot.sessions ?? [];
+  const unavailable = snapshot.dbAvailable === false;
+  refs.sessions.hidden = unavailable;
+  if (unavailable) return;
+
+  const signature = sessions
+    .map((session) => `${session.id}:${session.updatedAt}:${session.cost}:${agoText(session.updatedAt)}`)
+    .join("|");
+  if (signature === sessionsSignature) return;
+  sessionsSignature = signature;
+
+  if (!sessions.length) {
+    refs.sessionList.replaceChildren();
+    refs.sessionNote.textContent = "no OpenCode Go sessions in the local database yet";
+    refs.sessionNote.hidden = false;
+    return;
+  }
+  refs.sessionNote.hidden = true;
+
+  refs.sessionList.innerHTML = sessions
+    .map((session) => {
+      const meta = [dirLabel(session.directory), agoText(session.updatedAt), session.agent]
+        .filter(Boolean)
+        .map((part) => `<span>${esc(part)}</span>`)
+        .join("");
+      const models = session.models
+        .map(
+          (model) => `
+          <li class="session__model">
+            <span class="swatch" style="--c-light:${esc(model.color.light)};--c-dark:${esc(model.color.dark)}"></span>
+            <span class="session__model-name">${esc(model.name)}</span>
+            <span class="session__model-cost">${esc(cost(model.cost))}</span>
+          </li>`,
+        )
+        .join("");
+      return `
+        <li class="session">
+          <div class="session__head">
+            <p class="session__title" title="${esc(session.title)}">${esc(session.title)}</p>
+            <p class="session__cost">${esc(cost(session.cost))}</p>
+          </div>
+          <p class="session__meta">${meta}</p>
+          <ul class="session__models">${models}</ul>
+        </li>`;
+    })
+    .join("");
 }
 
 function detailHTML(window_) {

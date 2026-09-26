@@ -11,6 +11,8 @@ import {
   assignColors,
   configure,
   minusOneMonth,
+  openDatabase,
+  querySessions,
   segmentsFrom,
   snapshot,
   utcMonthStart,
@@ -61,7 +63,7 @@ function stubFetch({ plan = API_WINDOWS, consoleItems, consoleFails = false } = 
   };
 }
 
-function makeDb(rows) {
+function makeDb(rows, sessions = []) {
   const path = join(mkdtempSync(join(tmpdir(), "opencode-usage-")), "test.db");
   const db = new DatabaseSync(path);
   db.exec(
@@ -69,8 +71,44 @@ function makeDb(rows) {
   );
   const insert = db.prepare("INSERT INTO message VALUES (?, ?, ?, ?, ?)");
   rows.forEach((row, index) => {
-    insert.run(`msg_${index}`, "ses_1", row.time, row.time, JSON.stringify(row.data));
+    insert.run(`msg_${index}`, row.session ?? "ses_1", row.time, row.time, JSON.stringify(row.data));
   });
+  db.exec(
+    `CREATE TABLE session (
+       id text PRIMARY KEY,
+       title text NOT NULL,
+       directory text NOT NULL,
+       agent text,
+       parent_id text,
+       model text,
+       cost real DEFAULT 0 NOT NULL,
+       tokens_input integer DEFAULT 0 NOT NULL,
+       tokens_output integer DEFAULT 0 NOT NULL,
+       tokens_reasoning integer DEFAULT 0 NOT NULL,
+       tokens_cache_read integer DEFAULT 0 NOT NULL,
+       tokens_cache_write integer DEFAULT 0 NOT NULL,
+       time_created integer NOT NULL,
+       time_updated integer NOT NULL,
+       time_archived integer
+     )`,
+  );
+  const insertSession = db.prepare(
+    "INSERT INTO session (id, title, directory, agent, parent_id, model, cost, time_created, time_updated, time_archived) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+  );
+  for (const row of sessions) {
+    insertSession.run(
+      row.id,
+      row.title ?? "A session",
+      row.directory ?? "/tmp/project",
+      row.agent ?? "build",
+      row.parent ?? null,
+      JSON.stringify({ id: row.model ?? "deepseek-v4.1-flash", providerID: row.provider ?? "opencode-go" }),
+      row.cost ?? 0,
+      row.time,
+      row.time,
+      row.archived ?? null,
+    );
+  }
   db.close();
   return path;
 }
@@ -174,6 +212,77 @@ test("assignColors follows all-time spend and skips free models", () => {
   assert.deepEqual(colors.get("a"), PALETTE[0]);
   assert.deepEqual(colors.get("b"), PALETTE[1]);
   assert.equal(colors.has("free"), false);
+});
+
+test("querySessions lists recent root sessions with their per-model spend", () => {
+  const now = Date.parse("2026-09-24T17:00:00Z");
+  const dbPath = makeDb(
+    [
+      { ...message("glm-5.3-flash", 2, now - 1 * HOUR), session: "ses_a" },
+      { ...message("deepseek-v4.1-flash", 1, now - 2 * HOUR), session: "ses_a" },
+      { ...message("deepseek-v4.1-flash", 0.5, now - 30 * 60_000), session: "ses_b" },
+      { ...message("glm-5.3-flash", 9, now), session: "ses_child" },
+      { ...message("glm-5.3-flash", 9, now), session: "ses_archived" },
+      { ...message("glm-5.3-flash", 9, now), session: "ses_other" },
+    ],
+    [
+      { id: "ses_a", title: "Fix the bug", directory: "/srv/projects/app", time: now - 1 * HOUR },
+      { id: "ses_b", title: "Another one", time: now - 30 * 60_000 },
+      { id: "ses_child", title: "Subagent", parent: "ses_a", time: now },
+      { id: "ses_archived", title: "Old", time: now, archived: now },
+      { id: "ses_other", title: "Other provider", time: now, provider: "anthropic" },
+    ],
+  );
+
+  const db = openDatabase(dbPath);
+  const sessions = querySessions(db);
+  const firstOnly = querySessions(db, 1);
+  db.close();
+
+  assert.deepEqual(
+    sessions.map((session) => session.id),
+    ["ses_b", "ses_a"],
+  );
+  assert.deepEqual(firstOnly.map((session) => session.id), ["ses_b"]);
+  assert.equal(sessions[0].updatedAt, new Date(now - 30 * 60_000).toISOString());
+  assert.equal(sessions[0].directory, "/tmp/project");
+  assert.equal(sessions[1].cost, 3);
+  assert.deepEqual(
+    sessions[1].models.map((model) => [model.name, model.cost, model.runs]),
+    [
+      ["glm-5.3-flash", 2, 1],
+      ["deepseek-v4.1-flash", 1, 1],
+    ],
+  );
+});
+
+test("snapshot exposes recent sessions with all-time model colors", async () => {
+  const now = Date.parse("2026-09-24T17:00:00Z");
+  const dbPath = makeDb(
+    [
+      { ...message("deepseek-v4.1-flash", 0.6, now - 1 * HOUR), session: "ses_1" },
+      { ...message("mimo-v2.6-pro", 0.1, now - 1 * HOUR), session: "ses_1" },
+    ],
+    [{ id: "ses_1", title: "Ship it", time: now - 1 * HOUR }],
+  );
+
+  const result = await snapshot({
+    now,
+    fetchImpl: stubFetch({ consoleItems: CONSOLE_ITEMS }),
+    dbPath,
+  });
+
+  assert.equal(result.sessions.length, 1);
+  const [session] = result.sessions;
+  assert.equal(session.title, "Ship it");
+  assert.equal(round(session.cost), 0.7);
+  assert.deepEqual(
+    session.models.map((model) => [model.name, model.color]),
+    [
+      ["deepseek-v4.1-flash", PALETTE[0]],
+      ["mimo-v2.6-pro", PALETTE[1]],
+    ],
+  );
 });
 
 test("snapshot splits each window with the console's real model costs", async () => {
@@ -322,6 +431,7 @@ test("snapshot reports a missing database instead of failing", async () => {
 
   assert.equal(result.dbAvailable, false);
   assert.equal(result.dbPath, "/nonexistent/opencode.db");
+  assert.deepEqual(result.sessions, []);
   assert.equal(result.modelSource, "local");
   assert.equal(result.windows.weekly.activitySpent, 0);
   assert.equal(result.windows.weekly.percent, 29);

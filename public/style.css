@@ -227,6 +227,117 @@ body {
   color: var(--over);
 }
 
+.sessions {
+  margin-top: clamp(2.5rem, 7vh, 4rem);
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--hair);
+}
+
+.sessions[hidden] {
+  display: none;
+}
+
+.sessions__title {
+  margin: 0 0 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 620;
+  font-stretch: 106%;
+}
+
+.sessions__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.session {
+  padding: 0.7rem 0.35rem;
+  margin: 0 -0.35rem;
+  border-radius: 6px;
+}
+
+.session + .session {
+  border-top: 1px solid var(--hair);
+}
+
+.session:hover {
+  background: var(--hot);
+}
+
+.session__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.session__title {
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  font-weight: 560;
+}
+
+.session__cost {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 620;
+  font-variant-numeric: tabular-nums;
+}
+
+.session__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.75rem;
+  margin: 0.1rem 0 0;
+  font-size: 0.6875rem;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.session__models {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.9rem;
+  margin: 0.4rem 0 0;
+  padding: 0;
+}
+
+.session__model {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+
+.session__model .swatch {
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+.session__model-name {
+  color: var(--ink);
+}
+
+.session__model-cost {
+  font-variant-numeric: tabular-nums;
+}
+
+.sessions__note {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+
+.sessions__note[hidden] {
+  display: none;
+}
+
 .board__foot {
   margin-top: clamp(2.5rem, 7vh, 4rem);
   padding-top: 1.2rem;

@@ -1,6 +1,6 @@
 # opencode-usage-dash
 
-Local-first dashboard for OpenCode usage: the rolling five-hour, weekly and monthly plan windows, with every dollar split by model. It runs on your own machine and reads your own OpenCode data, so nothing leaves it.
+Local-first dashboard for OpenCode usage: the rolling five-hour, weekly and monthly plan windows, with every dollar split by model, plus your latest sessions and what each one cost. It runs on your own machine and reads your own OpenCode data, so nothing leaves it.
 
 - Website: https://opencode-usage.4oli.com/
 - Source: https://github.com/martinezharo/opencode-usage (MIT)
@@ -14,6 +14,7 @@ Local-first dashboard for OpenCode usage: the rolling five-hour, weekly and mont
 - Shows the three OpenCode Go plan windows — rolling 5-hour, weekly and monthly — with real percentages and reset countdowns from the OpenCode Go usage API.
 - Splits each window by model. Per-model costs, request counts and tokens come from the OpenCode console's usage API, so the dollars match the "Usage by model" table at opencode.ai/console.
 - Hovering (or focusing, or tapping) a bar opens a panel with each model's cost, share, requests, input, output and cache-read tokens.
+- Lists the latest sessions from the local database below the bars, each with its total cost and the models it used.
 - Falls back to the local OpenCode database when the console or the plan API is unreachable, and to local time windows (rolling 5 hours, UTC week, UTC calendar month) when the plan API is down.
 - Works without the Go plan: `--limits 20,50,100` sets your own caps, `--limits none` shows spend by model per window without percentages.
 - Dark mode follows the system.

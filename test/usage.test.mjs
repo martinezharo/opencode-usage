@@ -266,7 +266,10 @@ test("snapshot exposes recent sessions with all-time model colors", async () => 
       { ...message("deepseek-v4.1-flash", 0.6, now - 1 * HOUR), session: "ses_1" },
       { ...message("mimo-v2.6-pro", 0.1, now - 1 * HOUR), session: "ses_1" },
     ],
-    [{ id: "ses_1", title: "Ship it", time: now - 1 * HOUR }],
+    [
+      { id: "ses_1", title: "Ship it", time: now - 1 * HOUR },
+      { id: "ses_empty", title: "No messages", time: now - 2 * HOUR },
+    ],
   );
 
   const result = await snapshot({
@@ -275,8 +278,8 @@ test("snapshot exposes recent sessions with all-time model colors", async () => 
     dbPath,
   });
 
-  assert.equal(result.sessions.length, 1);
-  const [session] = result.sessions;
+  assert.equal(result.sessions.length, 2);
+  const [session, empty] = result.sessions;
   assert.equal(session.title, "Ship it");
   assert.equal(round(session.cost), 0.7);
   assert.deepEqual(
@@ -286,6 +289,9 @@ test("snapshot exposes recent sessions with all-time model colors", async () => 
       ["mimo-v2.6-pro", PALETTE[1]],
     ],
   );
+  assert.equal(empty.title, "No messages");
+  assert.equal(empty.cost, 0);
+  assert.deepEqual(empty.models, []);
 });
 
 test("snapshot splits each window with the console's real model costs", async () => {

@@ -1,3 +1,5 @@
+import { agoText, dirLabel, sessionsSignature } from "/format.js";
+
 const usd = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
@@ -26,7 +28,7 @@ let snapshot = null;
 let active = null;
 let hideTimer = 0;
 let lastLoad = 0;
-let sessionsSignature = null;
+let lastSessionsSignature = null;
 
 const esc = (value) =>
   String(value).replace(
@@ -70,24 +72,6 @@ function resetText(iso) {
 
 function clockText() {
   return `${new Date().toISOString().slice(11, 16)} UTC`;
-}
-
-function agoText(iso) {
-  const ms = Date.now() - Date.parse(iso);
-  if (!Number.isFinite(ms) || ms < 60_000) return "just now";
-  const minutes = Math.floor(ms / 60_000);
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 30) return `${days}d ago`;
-  return `${Math.floor(days / 30)}mo ago`;
-}
-
-function dirLabel(directory) {
-  if (!directory) return "";
-  const parts = String(directory).split(/[\\/]/).filter(Boolean);
-  return parts.length > 2 ? parts.slice(-2).join("/") : parts.join("/");
 }
 
 function buildMeters() {
@@ -226,11 +210,9 @@ function renderSessions() {
   refs.sessions.hidden = unavailable;
   if (unavailable) return;
 
-  const signature = sessions
-    .map((session) => `${session.id}:${session.updatedAt}:${session.cost}:${agoText(session.updatedAt)}`)
-    .join("|");
-  if (signature === sessionsSignature) return;
-  sessionsSignature = signature;
+  const signature = sessionsSignature(sessions);
+  if (signature === lastSessionsSignature) return;
+  lastSessionsSignature = signature;
 
   if (!sessions.length) {
     refs.sessionList.replaceChildren();

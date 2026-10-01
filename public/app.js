@@ -196,6 +196,11 @@ function renderNote() {
   } else {
     parts.push(`console unavailable; model costs from local sessions`);
   }
+  if (snapshot.update?.available) {
+    parts.push(
+      `update available: v${snapshot.update.latest} (you run v${snapshot.update.current}) — update the package and restart`,
+    );
+  }
   for (const text of parts) {
     const span = document.createElement("span");
     span.textContent = text;

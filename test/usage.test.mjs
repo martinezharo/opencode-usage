@@ -10,6 +10,7 @@ import {
   apiRanges,
   assignColors,
   configure,
+  mergeWindowModels,
   minusOneMonth,
   openDatabase,
   querySessions,
@@ -444,6 +445,58 @@ test("snapshot reports a missing database instead of failing", async () => {
   assert.equal(result.modelSource, "local");
   assert.equal(result.windows.weekly.activitySpent, 0);
   assert.equal(result.windows.weekly.percent, 29);
+});
+
+test("mergeWindowModels keeps console numbers and adds local-only models", () => {
+  const merged = mergeWindowModels(
+    [{ name: "deepseek-v4.1-flash", cost: 2.37, runs: 885, tokens: { input: 1 } }],
+    [
+      { name: "deepseek-v4.1-flash", cost: 5.7, runs: 3245, tokens: { input: 2 } },
+      { name: "glm-5.3-flash", cost: 4.65, runs: 1047, tokens: { input: 3 } },
+      { name: "free", cost: 0, runs: 10, tokens: { input: 4 } },
+    ],
+  );
+  assert.deepEqual(
+    merged.map((item) => [item.name, item.cost, item.runs]),
+    [
+      ["glm-5.3-flash", 4.65, 1047],
+      ["deepseek-v4.1-flash", 2.37, 885],
+    ],
+  );
+});
+
+test("snapshot merges local models missing from a filtered console response", async () => {
+  const now = Date.parse("2026-09-24T17:00:00Z");
+  const dbPath = makeDb([
+    message("glm-5.3-flash", 4.65, now - 1 * HOUR),
+    message("deepseek-v4.1-flash", 0.6, now - 1 * HOUR),
+  ]);
+
+  const consoleItems = (since) => {
+    if (since === null) {
+      return [
+        consoleItem("deepseek-v4.1-flash", 2.05, { runs: 1200 }),
+        consoleItem("glm-5.3-flash", 5.09, { runs: 1146 }),
+      ];
+    }
+    // Filtered console response misses glm, like the real API did.
+    return [consoleItem("deepseek-v4.1-flash", 0.36, { runs: 300 })];
+  };
+
+  const result = await snapshot({
+    now,
+    fetchImpl: stubFetch({ consoleItems }),
+    dbPath,
+  });
+
+  assert.equal(result.modelSource, "mixed");
+  const rolling = result.windows.rolling;
+  assert.equal(rolling.source, "mixed");
+  assert.deepEqual(
+    rolling.segments.map((segment) => segment.name),
+    ["glm-5.3-flash", "deepseek-v4.1-flash"],
+  );
+  assert.equal(round(rolling.activitySpent), 5.01);
 });
 
 function round(value) {

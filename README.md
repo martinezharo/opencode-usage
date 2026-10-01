@@ -66,7 +66,7 @@ The default caps are the OpenCode Go plan. For other setups pass your own, for e
 ## How it works
 
 - **Plan windows** come from the OpenCode Go usage API (`GET https://opencode.ai/zen/go/v1/usage`) using the key stored by `opencode` in `auth.json`.
-- **Model costs, requests and tokens** come from the OpenCode console API (`GET https://console.opencode.ai/api/usage/models?since=…`, micro-cents converted to dollars), queried once per window. These are the same numbers as the console's usage table.
+- **Model costs, requests and tokens** come from the OpenCode console API (`GET https://console.opencode.ai/api/usage/models?since=…`, micro-cents converted to dollars), queried once per window. These are the same numbers as the console's usage table. Models present in the local database but missing from a filtered console response are merged in with local costs, so a stale console filter can't hide a model you actually used (labelled `mixed` / `console + local` in the UI).
 - **Recent sessions** come from the local `opencode.db`: the last eight root sessions, with their total cost and the models they used, aggregated from the session's assistant messages.
 - **Fallbacks**: console → local `opencode.db` (provider `opencode-go`); plan API → local windows (rolling 5 h, UTC week, UTC calendar month). A missing database downgrades to plan-only mode instead of failing.
 

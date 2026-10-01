@@ -85,8 +85,8 @@ The tests cover window math, the console and plan API clients (with stubs), fall
 Merging to `main` publishes nothing. To release, push a tag matching `package.json` — the `release` workflow runs the tests and publishes to npm (with provenance), while `docker` publishes the GHCR image in parallel:
 
 ```sh
-npm version patch  # or minor / major
-git push origin main v1.0.1
+npm version patch  # or minor / major, creates the vX.Y.Z tag
+git push origin main --follow-tags
 ```
 
 This needs a `NPM_TOKEN` secret (automation token with publish rights on the package) in the repo's Actions secrets.

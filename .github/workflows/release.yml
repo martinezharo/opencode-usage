@@ -44,6 +44,7 @@ jobs:
 
       - run: node --test
 
+      # No NODE_AUTH_TOKEN: auth is the package's npm trusted publisher
+      # (OIDC). Requires id-token: write (above) and a one-time setup on
+      # npmjs.com linking this repo + workflow to the package.
       - run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

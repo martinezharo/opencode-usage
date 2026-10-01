@@ -89,7 +89,7 @@ npm version patch  # or minor / major, creates the vX.Y.Z tag
 git push origin main --follow-tags
 ```
 
-This needs a `NPM_TOKEN` secret (automation token with publish rights on the package) in the repo's Actions secrets.
+No npm token needed: publishing uses the package's npm trusted publisher (OIDC). One-time setup on npmjs.com → package `opencode-usage-dash` → *Settings* → *Trusted Publisher* → add GitHub Actions for `martinezharo/opencode-usage`, workflow file `release.yml`.
 
 ## License
 

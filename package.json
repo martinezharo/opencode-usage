@@ -1,6 +1,6 @@
 {
   "name": "opencode-usage-dash",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Minimal dashboard for OpenCode usage: plan windows and spend split by model.",
   "type": "module",
   "license": "MIT",

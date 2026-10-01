@@ -189,6 +189,8 @@ function renderNote() {
   }
   if (snapshot.modelSource === "console") {
     parts.push("model costs from the OpenCode console");
+  } else if (snapshot.modelSource === "mixed") {
+    parts.push("model costs from console + local (console misses some models)");
   } else if (snapshot.planError === "no-key") {
     parts.push("model costs from local sessions");
   } else {
@@ -280,6 +282,13 @@ function detailHTML(window_) {
       ? `activity ${cost(window_.activitySpent)}`
       : `${Math.round(window_.percent)}% of ${usd.format(window_.limit)} plan`;
 
+  const sourceLabel =
+    window_.source === "mixed"
+      ? "console + local"
+      : window_.source === "local"
+        ? "local"
+        : "console";
+
   return `
     <div class="detail__head">
       <span class="detail__window">${esc(window_.label)}</span>
@@ -288,7 +297,7 @@ function detailHTML(window_) {
     <ul class="detail__rows">${rows}</ul>
     <div class="detail__foot">
       <span>${esc(resetText(window_.resetsAt))}</span>
-      <span>activity ${esc(cost(window_.activitySpent))}</span>
+      <span>activity ${esc(cost(window_.activitySpent))} · ${esc(sourceLabel)}</span>
     </div>`;
 }
 

@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 
 import { parseLimits } from "./lib/cli.mjs";
 import { configure, dataPaths, getLimits, snapshot } from "./lib/usage.mjs";
+import { checkUpdate } from "./lib/update.mjs";
 
 const PUBLIC_DIR = fileURLToPath(new URL("./public/", import.meta.url));
 const PORT = Number(process.env.PORT ?? 4173);
@@ -117,4 +118,11 @@ server.listen(PORT, HOST, () => {
       ? `plan limits: $${limits.rolling} / $${limits.weekly} / $${limits.monthly}`
       : "plan limits: disabled (tracking spend only)",
   );
+  checkUpdate().then((update) => {
+    if (update.available) {
+      console.log(
+        `update available: v${update.latest} (you run v${update.current}) — update the package and restart to get it.`,
+      );
+    }
+  });
 });

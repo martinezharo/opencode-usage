@@ -80,6 +80,17 @@ node --test
 
 The tests cover window math, the console and plan API clients (with stubs), fallbacks and the CLI argument parser.
 
+## Releases
+
+Merging to `main` publishes nothing. To release, push a tag matching `package.json` — the `release` workflow runs the tests and publishes to npm (with provenance), while `docker` publishes the GHCR image in parallel:
+
+```sh
+npm version patch  # or minor / major, creates the vX.Y.Z tag
+git push origin main --follow-tags
+```
+
+No npm token needed: publishing uses the package's npm trusted publisher (OIDC). One-time setup on npmjs.com → package `opencode-usage-dash` → *Settings* → *Trusted Publisher* → add GitHub Actions for `martinezharo/opencode-usage`, workflow file `release.yml`.
+
 ## License
 
 MIT

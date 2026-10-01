@@ -499,6 +499,52 @@ test("snapshot merges local models missing from a filtered console response", as
   assert.equal(round(rolling.activitySpent), 5.01);
 });
 
+test("snapshot gives merged-in models consistent colors and keeps other clients neutral", async () => {
+  const now = Date.parse("2026-09-24T17:00:00Z");
+  const dbPath = makeDb(
+    [
+      { ...message("glm-5.3-flash", 4.65, now - 1 * HOUR), session: "ses_1" },
+      { ...message("deepseek-v4.1-flash", 0.6, now - 1 * HOUR), session: "ses_1" },
+    ],
+    [{ id: "ses_1", title: "Ship it", time: now - 1 * HOUR }],
+  );
+
+  // Console all-time also misses glm, so the color pass must assign it.
+  const consoleItems = () => [consoleItem("deepseek-v4.1-flash", 0.36, { runs: 300 })];
+
+  const result = await snapshot({
+    now,
+    fetchImpl: stubFetch({ consoleItems }),
+    dbPath,
+  });
+
+  const colored = ["rolling", "weekly", "monthly"]
+    .map((key) => result.windows[key].segments.find((segment) => segment.name === "glm-5.3-flash"))
+    .filter(Boolean);
+  assert.ok(colored.length > 0);
+  for (const segment of colored) {
+    assert.deepEqual(segment.color, colored[0].color);
+    assert.notDeepEqual(segment.color, { light: "#8a8378", dark: "#8f938c" });
+  }
+  const sessionModels = result.sessions.flatMap((session) => session.models);
+  const sessionGlm = sessionModels.find((model) => model.name === "glm-5.3-flash");
+  assert.deepEqual(sessionGlm.color, colored[0].color);
+
+  const empty = await snapshot({
+    now,
+    fetchImpl: stubFetch({ consoleItems: () => [] }),
+    dbPath: makeDb([]),
+  });
+  assert.deepEqual(
+    empty.windows.rolling.segments.map((segment) => segment.name),
+    ["other clients"],
+  );
+  assert.deepEqual(empty.windows.rolling.segments[0].color, {
+    light: "#8a8378",
+    dark: "#8f938c",
+  });
+});
+
 function round(value) {
   return Math.round(value * 1000) / 1000;
 }
